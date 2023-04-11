@@ -20,16 +20,18 @@ def init_file():
     except IOError:
         f = open(get_config_filename(), 'w')
         f.close()
-    get_config(get_config_filename(), 'send', 'mail_host')
-    get_config(get_config_filename(), 'send', 'mail_user')
-    get_config(get_config_filename(), 'send', 'mail_pass')
-    get_config(get_config_filename(), 'send', 'mail_sender')
+    get_config(get_config_filename(), 'watermark', 'dir')
+    get_config(get_config_filename(), 'watermark', 'offset_x')
+    get_config(get_config_filename(), 'watermark', 'offset_y')
+    get_config(get_config_filename(), 'watermark', 'pos')
+    get_config(get_config_filename(), 'watermark', 'zoom')
+    get_config(get_config_filename(), 'watermark', 'transparency')
     # 日志
     pathunt.path_create(get_log_path())
 
 
 def get_workspace_path():
-    return os.path.join(os.path.expanduser('~'), 'SalarySlipMailSend')
+    return os.path.join(os.path.expanduser('~'), 'watermark')
 
 
 def get_config_path():
@@ -37,7 +39,7 @@ def get_config_path():
 
 
 def get_config_filename():
-    return os.path.join(get_config_path(), 'mail.ini')
+    return os.path.join(get_config_path(), 'watermark.ini')
 
 
 def get_log_path():

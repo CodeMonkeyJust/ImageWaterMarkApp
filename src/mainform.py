@@ -2,7 +2,12 @@ import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import filedialog
 import os
+from configunit import get_config
+from workspace import get_config_filename, init_file
+from image_watermark import add_watermark
+from dateunit import get_current_time
 
+LOG_LINE_NUM = 0
 
 class App:
     def __init__(self, root):
@@ -10,7 +15,7 @@ class App:
         root.title("图像水印工具 For Flyany V1.0.0")
         # setting window size
         width = 700
-        height = 702
+        height = 800
         screenwidth = root.winfo_screenwidth()
         screenheight = root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
@@ -19,10 +24,16 @@ class App:
 
         # 全局变量
         self.watermark_dir = None
-        self.image_path = None
+        self.watermark_path = None
+        self.image_dir = None
+        self.pos = 0
+        self.offset_x = 0
+        self.offset_y = 0
+        self.zoom = 0
+        self.transparency = 0
         # 水印9宫格位置
-        self.watermark_pos = 3
         self.v = tk.IntVar()
+        self.v.set(7)
 
         GButton_ChooseWatermarkDir = tk.Button(root)
         GButton_ChooseWatermarkDir["bg"] = "#f0f0f0"
@@ -56,7 +67,6 @@ class App:
         self.GLineEdit_WatermarkDir["font"] = ft
         self.GLineEdit_WatermarkDir["fg"] = "#333333"
         self.GLineEdit_WatermarkDir["justify"] = "left"
-        self.GLineEdit_WatermarkDir["text"] = ""
         self.GLineEdit_WatermarkDir.place(x=130, y=20, width=400, height=30)
 
         self.GListBox_WatermarkImg = tk.Listbox(root)
@@ -74,7 +84,6 @@ class App:
         GRadio_385["justify"] = "left"
         GRadio_385["text"] = "左上"
         GRadio_385.place(x=130, y=280, width=90, height=30)
-        GRadio_385["command"] = self.GRadio_385_command
 
         GRadio_873 = tk.Radiobutton(root, variable=self.v, value=3)
         ft = tkFont.Font(family='Times', size=10)
@@ -83,7 +92,6 @@ class App:
         GRadio_873["justify"] = "right"
         GRadio_873["text"] = "右上"
         GRadio_873.place(x=550, y=280, width=90, height=30)
-        GRadio_873["command"] = self.GRadio_873_command
 
         GLabel_190 = tk.Label(root)
         ft = tkFont.Font(family='Times', size=10)
@@ -100,7 +108,6 @@ class App:
         GRadio_894["justify"] = "left"
         GRadio_894["text"] = "左中"
         GRadio_894.place(x=130, y=340, width=90, height=30)
-        GRadio_894["command"] = self.GRadio_894_command
 
         GRadio_92 = tk.Radiobutton(root, variable=self.v, value=2)
         ft = tkFont.Font(family='Times', size=10)
@@ -109,7 +116,6 @@ class App:
         GRadio_92["justify"] = "center"
         GRadio_92["text"] = "中上"
         GRadio_92.place(x=340, y=280, width=90, height=30)
-        GRadio_92["command"] = self.GRadio_92_command
 
         GRadio_330 = tk.Radiobutton(root, variable=self.v, value=5)
         ft = tkFont.Font(family='Times', size=10)
@@ -118,7 +124,6 @@ class App:
         GRadio_330["justify"] = "center"
         GRadio_330["text"] = "中中"
         GRadio_330.place(x=340, y=340, width=90, height=30)
-        GRadio_330["command"] = self.GRadio_330_command
 
         GRadio_923 = tk.Radiobutton(root, variable=self.v, value=6)
         ft = tkFont.Font(family='Times', size=10)
@@ -127,7 +132,6 @@ class App:
         GRadio_923["justify"] = "right"
         GRadio_923["text"] = "右中"
         GRadio_923.place(x=550, y=340, width=90, height=30)
-        GRadio_923["command"] = self.GRadio_923_command
 
         GRadio_31 = tk.Radiobutton(root, variable=self.v, value=7)
         ft = tkFont.Font(family='Times', size=10)
@@ -136,7 +140,6 @@ class App:
         GRadio_31["justify"] = "left"
         GRadio_31["text"] = "左下"
         GRadio_31.place(x=130, y=400, width=90, height=25)
-        GRadio_31["command"] = self.GRadio_31_command
 
         GRadio_639 = tk.Radiobutton(root, variable=self.v, value=8)
         ft = tkFont.Font(family='Times', size=10)
@@ -145,7 +148,6 @@ class App:
         GRadio_639["justify"] = "center"
         GRadio_639["text"] = "中下"
         GRadio_639.place(x=340, y=400, width=90, height=30)
-        GRadio_639["command"] = self.GRadio_639_command
 
         GRadio_95 = tk.Radiobutton(root, variable=self.v, value=9)
         ft = tkFont.Font(family='Times', size=10)
@@ -154,7 +156,6 @@ class App:
         GRadio_95["justify"] = "right"
         GRadio_95["text"] = "右下"
         GRadio_95.place(x=550, y=400, width=90, height=30)
-        GRadio_95["command"] = self.GRadio_95_command
 
         # 水印偏移X
         GLabel_offset_x = tk.Label(root)
@@ -165,16 +166,15 @@ class App:
         GLabel_offset_x["text"] = "水印偏移X："
         GLabel_offset_x.place(x=20, y=460, width=90, height=30)
 
-        GLineEdit_offset_x = tk.Entry(root)
-        GLineEdit_offset_x["borderwidth"] = "1px"
+        self.GLineEdit_offset_x = tk.Entry(root)
+        self.GLineEdit_offset_x["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
-        GLineEdit_offset_x["font"] = ft
-        GLineEdit_offset_x["fg"] = "#333333"
-        GLineEdit_offset_x["justify"] = "center"
-        GLineEdit_offset_x["text"] = "3"
-        GLineEdit_offset_x.place(x=120, y=460, width=150, height=30)
+        self.GLineEdit_offset_x["font"] = ft
+        self.GLineEdit_offset_x["fg"] = "#333333"
+        self.GLineEdit_offset_x["justify"] = "center"
+        self.GLineEdit_offset_x.place(x=120, y=460, width=150, height=30)
 
-        # 透明度
+        # 水印偏移Y
         GLabel_offset_y = tk.Label(root)
         ft = tkFont.Font(family='Times', size=10)
         GLabel_offset_y["font"] = ft
@@ -183,14 +183,13 @@ class App:
         GLabel_offset_y["text"] = "水印偏移Y："
         GLabel_offset_y.place(x=380, y=460, width=90, height=30)
 
-        GLineEdit_offset_y = tk.Entry(root)
-        GLineEdit_offset_y["borderwidth"] = "1px"
+        self.GLineEdit_offset_y = tk.Entry(root)
+        self.GLineEdit_offset_y["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
-        GLineEdit_offset_y["font"] = ft
-        GLineEdit_offset_y["fg"] = "#333333"
-        GLineEdit_offset_y["justify"] = "center"
-        GLineEdit_offset_y["text"] = "0"
-        GLineEdit_offset_y.place(x=490, y=460, width=150, height=30)
+        self.GLineEdit_offset_y["font"] = ft
+        self.GLineEdit_offset_y["fg"] = "#333333"
+        self.GLineEdit_offset_y["justify"] = "center"
+        self.GLineEdit_offset_y.place(x=490, y=460, width=150, height=30)
 
         # 图像/水印大小
         GLabel_72 = tk.Label(root)
@@ -198,17 +197,17 @@ class App:
         GLabel_72["font"] = ft
         GLabel_72["fg"] = "#333333"
         GLabel_72["justify"] = "right"
-        GLabel_72["text"] = "图像/水印："
+        GLabel_72["text"] = "图像/水印?："
         GLabel_72.place(x=20, y=520, width=90, height=30)
 
-        GLineEdit_518 = tk.Entry(root)
-        GLineEdit_518["borderwidth"] = "1px"
+        self.GLineEdit_zoom = tk.Entry(root)
+        self.GLineEdit_zoom["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
-        GLineEdit_518["font"] = ft
-        GLineEdit_518["fg"] = "#333333"
-        GLineEdit_518["justify"] = "center"
-        GLineEdit_518["text"] = "3"
-        GLineEdit_518.place(x=120, y=520, width=150, height=30)
+        self.GLineEdit_zoom["font"] = ft
+        self.GLineEdit_zoom["fg"] = "#333333"
+        self.GLineEdit_zoom["justify"] = "center"
+        self.GLineEdit_zoom["text"] = "3"
+        self.GLineEdit_zoom.place(x=120, y=520, width=150, height=30)
 
         GLabel_630 = tk.Label(root)
         ft = tkFont.Font(family='Times', size=10)
@@ -227,14 +226,13 @@ class App:
         GLabel_268["text"] = "透明度："
         GLabel_268.place(x=380, y=520, width=90, height=30)
 
-        GLineEdit_887 = tk.Entry(root)
-        GLineEdit_887["borderwidth"] = "1px"
+        self.GLineEdit_transparency = tk.Entry(root)
+        self.GLineEdit_transparency["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
-        GLineEdit_887["font"] = ft
-        GLineEdit_887["fg"] = "#333333"
-        GLineEdit_887["justify"] = "center"
-        GLineEdit_887["text"] = "0"
-        GLineEdit_887.place(x=490, y=520, width=150, height=30)
+        self.GLineEdit_transparency["font"] = ft
+        self.GLineEdit_transparency["fg"] = "#333333"
+        self.GLineEdit_transparency["justify"] = "center"
+        self.GLineEdit_transparency.place(x=490, y=520, width=150, height=30)
 
         # 图像文件目录
         GLabel_54 = tk.Label(root)
@@ -245,24 +243,23 @@ class App:
         GLabel_54["text"] = "图像文件目录："
         GLabel_54.place(x=20, y=580, width=90, height=30)
 
-        GLineEdit_962 = tk.Entry(root)
-        GLineEdit_962["borderwidth"] = "1px"
+        self.GLineEdit_image_dir = tk.Entry(root)
+        self.GLineEdit_image_dir["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
-        GLineEdit_962["font"] = ft
-        GLineEdit_962["fg"] = "#333333"
-        GLineEdit_962["justify"] = "center"
-        GLineEdit_962["text"] = ""
-        GLineEdit_962.place(x=120, y=580, width=400, height=30)
+        self.GLineEdit_image_dir["font"] = ft
+        self.GLineEdit_image_dir["fg"] = "#333333"
+        self.GLineEdit_image_dir["justify"] = "left"
+        self.GLineEdit_image_dir.place(x=120, y=580, width=400, height=30)
 
-        GButton_389 = tk.Button(root)
-        GButton_389["bg"] = "#f0f0f0"
+        GButton_choose_image_dir = tk.Button(root)
+        GButton_choose_image_dir["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times', size=10)
-        GButton_389["font"] = ft
-        GButton_389["fg"] = "#000000"
-        GButton_389["justify"] = "center"
-        GButton_389["text"] = "..."
-        GButton_389.place(x=540, y=580, width=84, height=30)
-        GButton_389["command"] = self.GButton_389_command
+        GButton_choose_image_dir["font"] = ft
+        GButton_choose_image_dir["fg"] = "#000000"
+        GButton_choose_image_dir["justify"] = "center"
+        GButton_choose_image_dir["text"] = "..."
+        GButton_choose_image_dir.place(x=540, y=580, width=84, height=30)
+        GButton_choose_image_dir["command"] = self.GButton_choose_image_dir_command
 
         # 生成水印图片
         GButton_add_watermark = tk.Button(root)
@@ -275,51 +272,30 @@ class App:
         GButton_add_watermark.place(x=260, y=640, width=165, height=30)
         GButton_add_watermark["command"] = self.GButton_add_watermark_command
 
+        self.Text_log = tk.Text(root)  # 日志框
+        self.Text_log.place(x=20, y=700, width=660, height=80)
+
+        self.load_defult_config()
+
     # 选择水印文件夹
     def GButton_ChooseWatermarkDir_command(self):
-        self.watermark_dir = os.path.dirname(
-            os.path.abspath(tk.filedialog.askopenfilename(filetypes=[("Image Files", "*.png")])))
-        self.GLineEdit_WatermarkDir.delete(0, tk.END)
-        self.GLineEdit_WatermarkDir.insert(0, self.watermark_dir)
-        self.GLineEdit_WatermarkDir["text"] = self.watermark_dir
-        print(self.watermark_dir)
-        self.Load_watermark(self.watermark_dir)
+        select_dir = tk.filedialog.askdirectory()
+        if len(select_dir) > 0:
+            self.set_watermark_dir(select_dir)
 
-    def GButton_389_command(self):
-        print("command")
+    def GButton_choose_image_dir_command(self):
+        select_dir = tk.filedialog.askdirectory()
+        if len(select_dir) > 0:
+            self.set_image_dir(select_dir)
 
     def GButton_add_watermark_command(self):
-        print("command GButton_add_watermark_command")
-        print(self.v)
+        self.load_form_val()
+        self.watermark_path = os.path.join(self.watermark_dir,
+                                           self.GListBox_WatermarkImg.get(self.GListBox_WatermarkImg.curselection()))
+        self.add_watermark_dir(self.image_dir)
 
-    def GRadio_385_command(self):
-        print("command")
-
-    def GRadio_873_command(self):
-        print("command")
-
-    def GRadio_894_command(self):
-        print("command")
-
-    def GRadio_92_command(self):
-        print("command")
-
-    def GRadio_330_command(self):
-        print("command")
-
-    def GRadio_923_command(self):
-        print("command")
-
-    def GRadio_31_command(self):
-        print("command")
-
-    def GRadio_639_command(self):
-        print("command")
-
-    def GRadio_95_command(self):
-        print("command")
-
-    def Load_watermark(self, dir):
+    # 读取水印文件
+    def load_watermark(self, dir):
         print("Load_watermark")
         print(dir)
         i = 0;
@@ -327,12 +303,91 @@ class App:
             filepath = os.path.join(dir, filename)
             if os.path.isfile(filepath):
                 watermakr_filepath = os.path.basename(filepath)
-                if os.path.splitext(watermakr_filepath)[1] == '.png':
+                ext = os.path.splitext(watermakr_filepath)[1].lower()
+                if ext == '.png':
                     i = i + 1
                     self.GListBox_WatermarkImg.insert(i, watermakr_filepath)
 
+    # 读取图像文件
+    def load_image(self, dir):
+        print("Load_watermark")
+        print(dir)
+        i = 0;
+        for filename in os.listdir(dir):
+            filepath = os.path.join(dir, filename)
+            if os.path.isfile(filepath):
+                watermakr_filepath = os.path.basename(filepath)
+                ext = os.path.splitext(watermakr_filepath)[1].lower()
+                if ext == '.png' or ext == '.jpg':
+                    i = i + 1
+                    self.GListBox_WatermarkImg.insert(i, watermakr_filepath)
 
-if __name__ == "__main__":
+    def load_defult_config(self):
+        self.set_watermark_dir(get_config(get_config_filename(), 'watermark', 'dir'))
+        self.v.set(get_config(get_config_filename(), 'watermark', 'pos'))
+        self.GLineEdit_offset_x.insert(0, get_config(get_config_filename(), 'watermark', 'offset_x'))
+        self.GLineEdit_offset_y.insert(0, get_config(get_config_filename(), 'watermark', 'offset_y'))
+        self.GLineEdit_zoom.delete(0, tk.END)
+        self.GLineEdit_zoom.insert(0, get_config(get_config_filename(), 'watermark', 'zoom'))
+        self.GLineEdit_transparency.delete(0, tk.END)
+        self.GLineEdit_transparency.insert(0, get_config(get_config_filename(), 'watermark', 'transparency'))
+
+    def set_watermark_dir(self, watermark_dir):
+        self.watermark_dir = watermark_dir
+        self.GLineEdit_WatermarkDir.delete(0, tk.END)
+        self.GLineEdit_WatermarkDir.insert(0, self.watermark_dir)
+        self.GLineEdit_WatermarkDir["text"] = self.watermark_dir
+        self.load_watermark(self.watermark_dir)
+
+    def set_image_dir(self, image_dir):
+        self.image_dir = image_dir
+        self.GLineEdit_image_dir.delete(0, tk.END)
+        self.GLineEdit_image_dir.insert(0, self.image_dir)
+
+    def load_form_val(self):
+        self.pos = int(self.v.get())
+        self.offset_x = int(self.GLineEdit_offset_x.get())
+        self.offset_y = int(self.GLineEdit_offset_y.get())
+        self.zoom = int(self.GLineEdit_zoom.get())
+        self.transparency = int(self.GLineEdit_transparency.get())
+
+    def add_watermark_dir(self, image_dir):
+        i = 0;
+        out_dir = image_dir + '_watermark'
+        self.write_log_to_text('======开始添加水印======')
+        for filename in os.listdir(image_dir):
+            filepath = os.path.join(image_dir, filename)
+            if os.path.isfile(filepath):
+                base_filename = os.path.basename(filepath)
+                ext = os.path.splitext(base_filename)[1].lower()
+                if ext == '.png' or ext == '.jpg':
+                    i = i + 1
+                    out_path = os.path.join(out_dir, os.path.splitext(base_filename)[0] + '.png')
+                    # print(out_path)
+                    add_watermark(watermark_path=self.watermark_path, image_path=filepath, out_path=out_path,
+                                  zoom=self.zoom, pos=self.pos, offset_x=self.offset_x, offset_y=self.offset_y,
+                                  transparency=self.transparency)
+                    self.write_log_to_text(str(i)+'-['+filepath+']')
+        self.write_log_to_text('======添加水印完成，共添加'+str(i)+'个文件======')
+        self.write_log_to_text('文件输出路径'+out_dir)
+    def write_log_to_text(self, logmsg):
+        global LOG_LINE_NUM
+        current_time = get_current_time()
+        logmsg_in = str(current_time) + " " + str(logmsg) + "\n"  # 换行
+        if LOG_LINE_NUM <= 7:
+            self.Text_log.insert(tk.END, logmsg_in)
+            LOG_LINE_NUM = LOG_LINE_NUM + 1
+        else:
+            self.Text_log.delete(1.0, 2.0)
+            self.Text_log.insert(tk.END, logmsg_in)
+
+
+def gui_start():
+    init_file()
     root = tk.Tk()
     app = App(root)
     root.mainloop()
+
+
+if __name__ == "__main__":
+    gui_start();
