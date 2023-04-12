@@ -1,3 +1,9 @@
+# encoding= utf-8
+# ------------------------------------------------------------------
+# Author:zhulijun
+# Created:2023-04-12
+# Description:图片添加水印
+# ------------------------------------------------------------------
 import os
 from PIL import Image, ImageEnhance
 
