@@ -20,12 +20,6 @@ def init_file():
     except IOError:
         f = open(get_config_filename(), 'w')
         f.close()
-    get_config(get_config_filename(), 'watermark', 'dir')
-    get_config(get_config_filename(), 'watermark', 'offset_x')
-    get_config(get_config_filename(), 'watermark', 'offset_y')
-    get_config(get_config_filename(), 'watermark', 'pos')
-    get_config(get_config_filename(), 'watermark', 'zoom')
-    get_config(get_config_filename(), 'watermark', 'transparency')
     # 日志
     path_unit.path_create(get_log_path())
 

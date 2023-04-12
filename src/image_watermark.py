@@ -1,11 +1,17 @@
 import os
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 
-def add_watermark(watermark_path, image_path, out_path, zoom=3, pos=5, offset_x=100, offset_y=100, transparency=0):
+def add_watermark(watermark_path, image_path, out_path, zoom=3, pos=5, offset_x=100, offset_y=100, opacity=1):
     # im是图像，watermark是图片水印
     im = Image.open(image_path).convert('RGBA')
     watermark = Image.open(watermark_path).convert('RGBA')
+    # 透明度处理
+    r, g, b, a = watermark.split()
+    # opacity为不透明度，范围(0,1)
+    opacity = opacity
+    alpha = ImageEnhance.Brightness(a).enhance(opacity)
+    watermark.putalpha(alpha)
     # 获取图像的宽高
     w, h = im.size
     # 缩放水印文件
