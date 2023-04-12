@@ -6,14 +6,14 @@
 # ------------------------------------------------------------------
 import os
 import time
-import pathunt
-from configunit import get_config
+import path_unit
+from config_unit import get_config
 
 
 def init_file():
     # 配置
-    pathunt.path_create(get_workspace_path())
-    pathunt.path_create(get_config_path())
+    path_unit.path_create(get_workspace_path())
+    path_unit.path_create(get_config_path())
     try:
         f = open(get_config_filename(), 'r')
         f.close()
@@ -27,7 +27,7 @@ def init_file():
     get_config(get_config_filename(), 'watermark', 'zoom')
     get_config(get_config_filename(), 'watermark', 'transparency')
     # 日志
-    pathunt.path_create(get_log_path())
+    path_unit.path_create(get_log_path())
 
 
 def get_workspace_path():

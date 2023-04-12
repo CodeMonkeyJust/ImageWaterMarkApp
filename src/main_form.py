@@ -1,13 +1,14 @@
 import tkinter as tk
 import tkinter.font as tkFont
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import os
-from configunit import get_config
+from config_unit import get_config, set_config
 from workspace import get_config_filename, init_file
 from image_watermark import add_watermark
-from dateunit import get_current_time
+from date_unit import get_current_time
 
 LOG_LINE_NUM = 0
+
 
 class App:
     def __init__(self, root):
@@ -23,14 +24,15 @@ class App:
         root.resizable(width=False, height=False)
 
         # 全局变量
-        self.watermark_dir = None
-        self.watermark_path = None
-        self.image_dir = None
-        self.pos = 0
-        self.offset_x = 0
-        self.offset_y = 0
-        self.zoom = 0
-        self.transparency = 0
+        self.watermark_dir = ''
+        self.watermark_path = ''
+        self.image_dir = ''
+        self.watermark_index = 0
+        self.watermark_pos = 0
+        self.watermark_offset_x = 0
+        self.watermark_offset_y = 0
+        self.watermark_zoom = 0
+        self.watermark_transparency = 0
         # 水印9宫格位置
         self.v = tk.IntVar()
         self.v.set(7)
@@ -75,6 +77,9 @@ class App:
         self.GListBox_WatermarkImg["font"] = ft
         self.GListBox_WatermarkImg["fg"] = "#333333"
         self.GListBox_WatermarkImg["justify"] = "left"
+        # 失去焦点后仍然保持选择
+        self.GListBox_WatermarkImg["exportselection"] = False
+        # self.GListBox_WatermarkImg["selectmode"] = tk.BROWSE
         self.GListBox_WatermarkImg.place(x=130, y=80, width=512, height=170)
 
         GRadio_385 = tk.Radiobutton(root, variable=self.v, value=1)
@@ -172,7 +177,7 @@ class App:
         self.GLineEdit_offset_x["font"] = ft
         self.GLineEdit_offset_x["fg"] = "#333333"
         self.GLineEdit_offset_x["justify"] = "center"
-        self.GLineEdit_offset_x.place(x=120, y=460, width=150, height=30)
+        self.GLineEdit_offset_x.place(x=130, y=460, width=150, height=30)
 
         # 水印偏移Y
         GLabel_offset_y = tk.Label(root)
@@ -197,7 +202,7 @@ class App:
         GLabel_72["font"] = ft
         GLabel_72["fg"] = "#333333"
         GLabel_72["justify"] = "right"
-        GLabel_72["text"] = "图像/水印?："
+        GLabel_72["text"] = "图片/水印："
         GLabel_72.place(x=20, y=520, width=90, height=30)
 
         self.GLineEdit_zoom = tk.Entry(root)
@@ -207,7 +212,7 @@ class App:
         self.GLineEdit_zoom["fg"] = "#333333"
         self.GLineEdit_zoom["justify"] = "center"
         self.GLineEdit_zoom["text"] = "3"
-        self.GLineEdit_zoom.place(x=120, y=520, width=150, height=30)
+        self.GLineEdit_zoom.place(x=130, y=520, width=150, height=30)
 
         GLabel_630 = tk.Label(root)
         ft = tkFont.Font(family='Times', size=10)
@@ -240,7 +245,7 @@ class App:
         GLabel_54["font"] = ft
         GLabel_54["fg"] = "#333333"
         GLabel_54["justify"] = "right"
-        GLabel_54["text"] = "图像文件目录："
+        GLabel_54["text"] = "图片文件目录："
         GLabel_54.place(x=20, y=580, width=90, height=30)
 
         self.GLineEdit_image_dir = tk.Entry(root)
@@ -249,7 +254,7 @@ class App:
         self.GLineEdit_image_dir["font"] = ft
         self.GLineEdit_image_dir["fg"] = "#333333"
         self.GLineEdit_image_dir["justify"] = "left"
-        self.GLineEdit_image_dir.place(x=120, y=580, width=400, height=30)
+        self.GLineEdit_image_dir.place(x=130, y=580, width=400, height=30)
 
         GButton_choose_image_dir = tk.Button(root)
         GButton_choose_image_dir["bg"] = "#f0f0f0"
@@ -258,7 +263,7 @@ class App:
         GButton_choose_image_dir["fg"] = "#000000"
         GButton_choose_image_dir["justify"] = "center"
         GButton_choose_image_dir["text"] = "..."
-        GButton_choose_image_dir.place(x=540, y=580, width=84, height=30)
+        GButton_choose_image_dir.place(x=560, y=580, width=84, height=30)
         GButton_choose_image_dir["command"] = self.GButton_choose_image_dir_command
 
         # 生成水印图片
@@ -274,8 +279,7 @@ class App:
 
         self.Text_log = tk.Text(root)  # 日志框
         self.Text_log.place(x=20, y=700, width=660, height=80)
-
-        self.load_defult_config()
+        self.load_default_config()
 
     # 选择水印文件夹
     def GButton_ChooseWatermarkDir_command(self):
@@ -290,15 +294,21 @@ class App:
 
     def GButton_add_watermark_command(self):
         self.load_form_val()
+        if len(self.image_dir) < 2:
+            messagebox.showwarning('注意', '图片路径不能为空！')
+            return
+        selection = self.GListBox_WatermarkImg.curselection()
+        print(selection)
+        if not selection:
+            messagebox.showwarning('注意', '请选择水印！')
+            return
         self.watermark_path = os.path.join(self.watermark_dir,
-                                           self.GListBox_WatermarkImg.get(self.GListBox_WatermarkImg.curselection()))
+                                           self.GListBox_WatermarkImg.get(selection[0]))
         self.add_watermark_dir(self.image_dir)
 
     # 读取水印文件
     def load_watermark(self, dir):
-        print("Load_watermark")
-        print(dir)
-        i = 0;
+        i = 0
         for filename in os.listdir(dir):
             filepath = os.path.join(dir, filename)
             if os.path.isfile(filepath):
@@ -310,9 +320,7 @@ class App:
 
     # 读取图像文件
     def load_image(self, dir):
-        print("Load_watermark")
-        print(dir)
-        i = 0;
+        i = 0
         for filename in os.listdir(dir):
             filepath = os.path.join(dir, filename)
             if os.path.isfile(filepath):
@@ -322,8 +330,9 @@ class App:
                     i = i + 1
                     self.GListBox_WatermarkImg.insert(i, watermakr_filepath)
 
-    def load_defult_config(self):
+    def load_default_config(self):
         self.set_watermark_dir(get_config(get_config_filename(), 'watermark', 'dir'))
+        self.set_watermark_index(get_config(get_config_filename(), 'watermark', 'index'))
         self.v.set(get_config(get_config_filename(), 'watermark', 'pos'))
         self.GLineEdit_offset_x.insert(0, get_config(get_config_filename(), 'watermark', 'offset_x'))
         self.GLineEdit_offset_y.insert(0, get_config(get_config_filename(), 'watermark', 'offset_y'))
@@ -331,6 +340,15 @@ class App:
         self.GLineEdit_zoom.insert(0, get_config(get_config_filename(), 'watermark', 'zoom'))
         self.GLineEdit_transparency.delete(0, tk.END)
         self.GLineEdit_transparency.insert(0, get_config(get_config_filename(), 'watermark', 'transparency'))
+
+    def save_default_config(self):
+        set_config(get_config_filename(), 'watermark', 'dir', self.watermark_dir)
+        set_config(get_config_filename(), 'watermark', 'index', self.watermark_index)
+        set_config(get_config_filename(), 'watermark', 'pos', self.watermark_pos)
+        set_config(get_config_filename(), 'watermark', 'offset_x', self.watermark_offset_x)
+        set_config(get_config_filename(), 'watermark', 'offset_y', self.watermark_offset_y)
+        set_config(get_config_filename(), 'watermark', 'zoom', self.watermark_zoom)
+        set_config(get_config_filename(), 'watermark', 'transparency', self.watermark_transparency)
 
     def set_watermark_dir(self, watermark_dir):
         self.watermark_dir = watermark_dir
@@ -344,12 +362,17 @@ class App:
         self.GLineEdit_image_dir.delete(0, tk.END)
         self.GLineEdit_image_dir.insert(0, self.image_dir)
 
+    def set_watermark_index(self, index):
+        self.watermark_index = index
+        self.GListBox_WatermarkImg.select_set(index)
+
     def load_form_val(self):
-        self.pos = int(self.v.get())
-        self.offset_x = int(self.GLineEdit_offset_x.get())
-        self.offset_y = int(self.GLineEdit_offset_y.get())
-        self.zoom = int(self.GLineEdit_zoom.get())
-        self.transparency = int(self.GLineEdit_transparency.get())
+        self.watermark_pos = int(self.v.get())
+        self.watermark_index = self.GListBox_WatermarkImg.curselection()[0]
+        self.watermark_offset_x = int(self.GLineEdit_offset_x.get())
+        self.watermark_offset_y = int(self.GLineEdit_offset_y.get())
+        self.watermark_zoom = int(self.GLineEdit_zoom.get())
+        self.watermark_transparency = int(self.GLineEdit_transparency.get())
 
     def add_watermark_dir(self, image_dir):
         i = 0;
@@ -365,11 +388,15 @@ class App:
                     out_path = os.path.join(out_dir, os.path.splitext(base_filename)[0] + '.png')
                     # print(out_path)
                     add_watermark(watermark_path=self.watermark_path, image_path=filepath, out_path=out_path,
-                                  zoom=self.zoom, pos=self.pos, offset_x=self.offset_x, offset_y=self.offset_y,
-                                  transparency=self.transparency)
-                    self.write_log_to_text(str(i)+'-['+filepath+']')
-        self.write_log_to_text('======添加水印完成，共添加'+str(i)+'个文件======')
-        self.write_log_to_text('文件输出路径'+out_dir)
+                                  zoom=self.watermark_zoom, pos=self.watermark_pos, offset_x=self.watermark_offset_x,
+                                  offset_y=self.watermark_offset_y,
+                                  transparency=self.watermark_transparency)
+                    self.write_log_to_text(str(i) + '-[' + filepath + ']')
+        self.write_log_to_text('======添加水印完成，共添加' + str(i) + '个文件======')
+        self.write_log_to_text('文件输出路径' + out_dir)
+        self.save_default_config()
+        messagebox.showinfo('信息', '添加水印完成，共添加' + str(i) + '个文件,水印文件输出路径'+out_dir)
+
     def write_log_to_text(self, logmsg):
         global LOG_LINE_NUM
         current_time = get_current_time()
@@ -390,4 +417,4 @@ def gui_start():
 
 
 if __name__ == "__main__":
-    gui_start();
+    gui_start()
