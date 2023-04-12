@@ -1,3 +1,9 @@
+# encoding= utf-8
+# ------------------------------------------------------------------
+# Author:zhulijun
+# Created:2023-04-12
+# Description:图像水印添加主界面
+# ------------------------------------------------------------------
 import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import filedialog, messagebox
@@ -12,17 +18,6 @@ LOG_LINE_NUM = 0
 
 class App:
     def __init__(self, root):
-        # setting title
-        root.title("图像水印工具 For Flyany V1.0.0")
-        # setting window size
-        width = 700
-        height = 800
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
-        alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
-
         # 全局变量
         self.watermark_dir = ''
         self.watermark_path = ''
@@ -36,277 +31,290 @@ class App:
         # 水印9宫格位置
         self.v = tk.IntVar()
         self.v.set(7)
-
-        GButton_ChooseWatermarkDir = tk.Button(root)
-        GButton_ChooseWatermarkDir["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family='Times', size=10)
-        GButton_ChooseWatermarkDir["font"] = ft
-        GButton_ChooseWatermarkDir["fg"] = "#000000"
-        GButton_ChooseWatermarkDir["justify"] = "center"
-        GButton_ChooseWatermarkDir["text"] = "..."
-        GButton_ChooseWatermarkDir.place(x=560, y=20, width=84, height=30)
-        GButton_ChooseWatermarkDir["command"] = self.GButton_ChooseWatermarkDir_command
-
-        GLabel_855 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_855["font"] = ft
-        GLabel_855["fg"] = "#333333"
-        GLabel_855["justify"] = "right"
-        GLabel_855["text"] = "水印文件目录："
-        GLabel_855.place(x=20, y=20, width=90, height=30)
-
-        GLabel_669 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_669["font"] = ft
-        GLabel_669["fg"] = "#333333"
-        GLabel_669["justify"] = "right"
-        GLabel_669["text"] = "水印位置："
-        GLabel_669.place(x=20, y=280, width=90, height=30)
-
-        self.GLineEdit_WatermarkDir = tk.Entry(root)
-        self.GLineEdit_WatermarkDir["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_WatermarkDir["font"] = ft
-        self.GLineEdit_WatermarkDir["fg"] = "#333333"
-        self.GLineEdit_WatermarkDir["justify"] = "left"
-        self.GLineEdit_WatermarkDir.place(x=130, y=20, width=400, height=30)
-
-        self.GListBox_WatermarkImg = tk.Listbox(root)
-        self.GListBox_WatermarkImg["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GListBox_WatermarkImg["font"] = ft
-        self.GListBox_WatermarkImg["fg"] = "#333333"
-        self.GListBox_WatermarkImg["justify"] = "left"
-        # 失去焦点后仍然保持选择
-        self.GListBox_WatermarkImg["exportselection"] = False
-        # self.GListBox_WatermarkImg["selectmode"] = tk.BROWSE
-        self.GListBox_WatermarkImg.place(x=130, y=80, width=512, height=170)
-
-        GRadio_385 = tk.Radiobutton(root, variable=self.v, value=1)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_385["font"] = ft
-        GRadio_385["fg"] = "#333333"
-        GRadio_385["justify"] = "left"
-        GRadio_385["text"] = "左上"
-        GRadio_385.place(x=130, y=280, width=90, height=30)
-
-        GRadio_873 = tk.Radiobutton(root, variable=self.v, value=3)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_873["font"] = ft
-        GRadio_873["fg"] = "#333333"
-        GRadio_873["justify"] = "right"
-        GRadio_873["text"] = "右上"
-        GRadio_873.place(x=550, y=280, width=90, height=30)
-
-        GLabel_190 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_190["font"] = ft
-        GLabel_190["fg"] = "#333333"
-        GLabel_190["justify"] = "right"
-        GLabel_190["text"] = "请选择水印："
-        GLabel_190.place(x=20, y=80, width=90, height=30)
-
-        GRadio_894 = tk.Radiobutton(root, variable=self.v, value=4)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_894["font"] = ft
-        GRadio_894["fg"] = "#333333"
-        GRadio_894["justify"] = "left"
-        GRadio_894["text"] = "左中"
-        GRadio_894.place(x=130, y=340, width=90, height=30)
-
-        GRadio_92 = tk.Radiobutton(root, variable=self.v, value=2)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_92["font"] = ft
-        GRadio_92["fg"] = "#333333"
-        GRadio_92["justify"] = "center"
-        GRadio_92["text"] = "中上"
-        GRadio_92.place(x=340, y=280, width=90, height=30)
-
-        GRadio_330 = tk.Radiobutton(root, variable=self.v, value=5)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_330["font"] = ft
-        GRadio_330["fg"] = "#333333"
-        GRadio_330["justify"] = "center"
-        GRadio_330["text"] = "中中"
-        GRadio_330.place(x=340, y=340, width=90, height=30)
-
-        GRadio_923 = tk.Radiobutton(root, variable=self.v, value=6)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_923["font"] = ft
-        GRadio_923["fg"] = "#333333"
-        GRadio_923["justify"] = "right"
-        GRadio_923["text"] = "右中"
-        GRadio_923.place(x=550, y=340, width=90, height=30)
-
-        GRadio_31 = tk.Radiobutton(root, variable=self.v, value=7)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_31["font"] = ft
-        GRadio_31["fg"] = "#333333"
-        GRadio_31["justify"] = "left"
-        GRadio_31["text"] = "左下"
-        GRadio_31.place(x=130, y=400, width=90, height=25)
-
-        GRadio_639 = tk.Radiobutton(root, variable=self.v, value=8)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_639["font"] = ft
-        GRadio_639["fg"] = "#333333"
-        GRadio_639["justify"] = "center"
-        GRadio_639["text"] = "中下"
-        GRadio_639.place(x=340, y=400, width=90, height=30)
-
-        GRadio_95 = tk.Radiobutton(root, variable=self.v, value=9)
-        ft = tkFont.Font(family='Times', size=10)
-        GRadio_95["font"] = ft
-        GRadio_95["fg"] = "#333333"
-        GRadio_95["justify"] = "right"
-        GRadio_95["text"] = "右下"
-        GRadio_95.place(x=550, y=400, width=90, height=30)
-
-        # 水印偏移X
-        GLabel_offset_x = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_offset_x["font"] = ft
-        GLabel_offset_x["fg"] = "#333333"
-        GLabel_offset_x["justify"] = "right"
-        GLabel_offset_x["text"] = "水印偏移X："
-        GLabel_offset_x.place(x=20, y=460, width=90, height=30)
-
-        self.GLineEdit_offset_x = tk.Entry(root)
-        self.GLineEdit_offset_x["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_offset_x["font"] = ft
-        self.GLineEdit_offset_x["fg"] = "#333333"
-        self.GLineEdit_offset_x["justify"] = "center"
-        self.GLineEdit_offset_x.place(x=130, y=460, width=150, height=30)
-
-        # 水印偏移Y
-        GLabel_offset_y = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_offset_y["font"] = ft
-        GLabel_offset_y["fg"] = "#333333"
-        GLabel_offset_y["justify"] = "right"
-        GLabel_offset_y["text"] = "水印偏移Y："
-        GLabel_offset_y.place(x=380, y=460, width=90, height=30)
-
-        self.GLineEdit_offset_y = tk.Entry(root)
-        self.GLineEdit_offset_y["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_offset_y["font"] = ft
-        self.GLineEdit_offset_y["fg"] = "#333333"
-        self.GLineEdit_offset_y["justify"] = "center"
-        self.GLineEdit_offset_y.place(x=490, y=460, width=150, height=30)
-
-        # 图像/水印大小
-        GLabel_72 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_72["font"] = ft
-        GLabel_72["fg"] = "#333333"
-        GLabel_72["justify"] = "right"
-        GLabel_72["text"] = "图片/水印："
-        GLabel_72.place(x=20, y=520, width=90, height=30)
-
-        self.GLineEdit_zoom = tk.Entry(root)
-        self.GLineEdit_zoom["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_zoom["font"] = ft
-        self.GLineEdit_zoom["fg"] = "#333333"
-        self.GLineEdit_zoom["justify"] = "center"
-        self.GLineEdit_zoom["text"] = "3"
-        self.GLineEdit_zoom.place(x=130, y=520, width=150, height=30)
-
-        GLabel_630 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_630["font"] = ft
-        GLabel_630["fg"] = "#333333"
-        GLabel_630["justify"] = "center"
-        GLabel_630["text"] = "/1"
-        GLabel_630.place(x=280, y=520, width=35, height=30)
-
-        # 不透明度
-        GLabel_268 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_268["font"] = ft
-        GLabel_268["fg"] = "#333333"
-        GLabel_268["justify"] = "right"
-        GLabel_268["text"] = "不透明度："
-        GLabel_268.place(x=380, y=520, width=90, height=30)
-
-        self.GLineEdit_opacity = tk.Entry(root)
-        self.GLineEdit_opacity["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_opacity["font"] = ft
-        self.GLineEdit_opacity["fg"] = "#333333"
-        self.GLineEdit_opacity["justify"] = "center"
-        self.GLineEdit_opacity.place(x=490, y=520, width=150, height=30)
-
-        # 图像文件目录
-        GLabel_54 = tk.Label(root)
-        ft = tkFont.Font(family='Times', size=10)
-        GLabel_54["font"] = ft
-        GLabel_54["fg"] = "#333333"
-        GLabel_54["justify"] = "right"
-        GLabel_54["text"] = "图片文件目录："
-        GLabel_54.place(x=20, y=580, width=90, height=30)
-
-        self.GLineEdit_image_dir = tk.Entry(root)
-        self.GLineEdit_image_dir["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Times', size=10)
-        self.GLineEdit_image_dir["font"] = ft
-        self.GLineEdit_image_dir["fg"] = "#333333"
-        self.GLineEdit_image_dir["justify"] = "left"
-        self.GLineEdit_image_dir.place(x=130, y=580, width=400, height=30)
-
-        GButton_choose_image_dir = tk.Button(root)
-        GButton_choose_image_dir["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family='Times', size=10)
-        GButton_choose_image_dir["font"] = ft
-        GButton_choose_image_dir["fg"] = "#000000"
-        GButton_choose_image_dir["justify"] = "center"
-        GButton_choose_image_dir["text"] = "..."
-        GButton_choose_image_dir.place(x=560, y=580, width=84, height=30)
-        GButton_choose_image_dir["command"] = self.GButton_choose_image_dir_command
-
-        # 生成水印图片
-        GButton_add_watermark = tk.Button(root)
-        GButton_add_watermark["bg"] = "#f0f0f0"
-        ft = tkFont.Font(family='Times', size=10)
-        GButton_add_watermark["font"] = ft
-        GButton_add_watermark["fg"] = "#000000"
-        GButton_add_watermark["justify"] = "center"
-        GButton_add_watermark["text"] = "生成水印图片"
-        GButton_add_watermark.place(x=260, y=640, width=165, height=30)
-        GButton_add_watermark["command"] = self.GButton_add_watermark_command
-
-        self.Text_log = tk.Text(root)  # 日志框
-        self.Text_log.place(x=20, y=700, width=660, height=80)
+        self.init_from(root)
         self.load_default_config()
 
+    # 初始化界面
+    def init_from(self, root):
+        # setting title
+        root.title("图像水印工具 For Flyany V1.0.0")
+        # setting window size
+        width = 700
+        height = 800
+        screenwidth = root.winfo_screenwidth()
+        screenheight = root.winfo_screenheight()
+        alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
+        root.geometry(alignstr)
+        root.resizable(width=False, height=False)
+        button_choose_watermark_dir = tk.Button(root)
+        button_choose_watermark_dir["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times', size=10)
+        button_choose_watermark_dir["font"] = ft
+        button_choose_watermark_dir["fg"] = "#000000"
+        button_choose_watermark_dir["justify"] = "center"
+        button_choose_watermark_dir["text"] = "..."
+        button_choose_watermark_dir.place(x=560, y=20, width=84, height=30)
+        button_choose_watermark_dir["command"] = self.button_choose_watermark_dir_command
+
+        label_855 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_855["font"] = ft
+        label_855["fg"] = "#333333"
+        label_855["justify"] = "right"
+        label_855["text"] = "水印文件目录："
+        label_855.place(x=20, y=20, width=90, height=30)
+
+        label_669 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_669["font"] = ft
+        label_669["fg"] = "#333333"
+        label_669["justify"] = "right"
+        label_669["text"] = "水印位置："
+        label_669.place(x=20, y=280, width=90, height=30)
+
+        self.entry_watermark_dir = tk.Entry(root)
+        self.entry_watermark_dir["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_watermark_dir["font"] = ft
+        self.entry_watermark_dir["fg"] = "#333333"
+        self.entry_watermark_dir["justify"] = "left"
+        self.entry_watermark_dir.place(x=130, y=20, width=400, height=30)
+
+        self.listbox_watermark_img = tk.Listbox(root)
+        self.listbox_watermark_img["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.listbox_watermark_img["font"] = ft
+        self.listbox_watermark_img["fg"] = "#333333"
+        self.listbox_watermark_img["justify"] = "left"
+        # 失去焦点后仍然保持选择
+        self.listbox_watermark_img["exportselection"] = False
+        # self.listbox_watermark_img["selectmode"] = tk.BROWSE
+        self.listbox_watermark_img.place(x=130, y=80, width=512, height=170)
+
+        radiobutton_pos_lt = tk.Radiobutton(root, variable=self.v, value=1)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_lt["font"] = ft
+        radiobutton_pos_lt["fg"] = "#333333"
+        radiobutton_pos_lt["justify"] = "left"
+        radiobutton_pos_lt["text"] = "左上"
+        radiobutton_pos_lt.place(x=130, y=280, width=90, height=30)
+
+        radiobutton_pos_rt = tk.Radiobutton(root, variable=self.v, value=3)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_rt["font"] = ft
+        radiobutton_pos_rt["fg"] = "#333333"
+        radiobutton_pos_rt["justify"] = "right"
+        radiobutton_pos_rt["text"] = "右上"
+        radiobutton_pos_rt.place(x=550, y=280, width=90, height=30)
+
+        label_190 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_190["font"] = ft
+        label_190["fg"] = "#333333"
+        label_190["justify"] = "right"
+        label_190["text"] = "请选择水印："
+        label_190.place(x=20, y=80, width=90, height=30)
+
+        radiobutton_pos_lm = tk.Radiobutton(root, variable=self.v, value=4)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_lm["font"] = ft
+        radiobutton_pos_lm["fg"] = "#333333"
+        radiobutton_pos_lm["justify"] = "left"
+        radiobutton_pos_lm["text"] = "左中"
+        radiobutton_pos_lm.place(x=130, y=340, width=90, height=30)
+
+        radiobutton_pos_mt = tk.Radiobutton(root, variable=self.v, value=2)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_mt["font"] = ft
+        radiobutton_pos_mt["fg"] = "#333333"
+        radiobutton_pos_mt["justify"] = "center"
+        radiobutton_pos_mt["text"] = "中上"
+        radiobutton_pos_mt.place(x=340, y=280, width=90, height=30)
+
+        radiobutton_pos_mm = tk.Radiobutton(root, variable=self.v, value=5)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_mm["font"] = ft
+        radiobutton_pos_mm["fg"] = "#333333"
+        radiobutton_pos_mm["justify"] = "center"
+        radiobutton_pos_mm["text"] = "中中"
+        radiobutton_pos_mm.place(x=340, y=340, width=90, height=30)
+
+        radiobutton_pos_rm = tk.Radiobutton(root, variable=self.v, value=6)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_rm["font"] = ft
+        radiobutton_pos_rm["fg"] = "#333333"
+        radiobutton_pos_rm["justify"] = "right"
+        radiobutton_pos_rm["text"] = "右中"
+        radiobutton_pos_rm.place(x=550, y=340, width=90, height=30)
+
+        radiobutton_pos_ld = tk.Radiobutton(root, variable=self.v, value=7)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_ld["font"] = ft
+        radiobutton_pos_ld["fg"] = "#333333"
+        radiobutton_pos_ld["justify"] = "left"
+        radiobutton_pos_ld["text"] = "左下"
+        radiobutton_pos_ld.place(x=130, y=400, width=90, height=25)
+
+        radiobutton_pos_md = tk.Radiobutton(root, variable=self.v, value=8)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_md["font"] = ft
+        radiobutton_pos_md["fg"] = "#333333"
+        radiobutton_pos_md["justify"] = "center"
+        radiobutton_pos_md["text"] = "中下"
+        radiobutton_pos_md.place(x=340, y=400, width=90, height=30)
+
+        radiobutton_pos_rd = tk.Radiobutton(root, variable=self.v, value=9)
+        ft = tkFont.Font(family='Times', size=10)
+        radiobutton_pos_rd["font"] = ft
+        radiobutton_pos_rd["fg"] = "#333333"
+        radiobutton_pos_rd["justify"] = "right"
+        radiobutton_pos_rd["text"] = "右下"
+        radiobutton_pos_rd.place(x=550, y=400, width=90, height=30)
+
+        # 水印偏移X
+        label_offset_x = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_offset_x["font"] = ft
+        label_offset_x["fg"] = "#333333"
+        label_offset_x["justify"] = "right"
+        label_offset_x["text"] = "水印偏移X："
+        label_offset_x.place(x=20, y=460, width=90, height=30)
+
+        self.entry_offset_x = tk.Entry(root)
+        self.entry_offset_x["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_offset_x["font"] = ft
+        self.entry_offset_x["fg"] = "#333333"
+        self.entry_offset_x["justify"] = "center"
+        self.entry_offset_x.place(x=130, y=460, width=150, height=30)
+
+        # 水印偏移Y
+        label_offset_y = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_offset_y["font"] = ft
+        label_offset_y["fg"] = "#333333"
+        label_offset_y["justify"] = "right"
+        label_offset_y["text"] = "水印偏移Y："
+        label_offset_y.place(x=380, y=460, width=90, height=30)
+
+        self.entry_offset_y = tk.Entry(root)
+        self.entry_offset_y["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_offset_y["font"] = ft
+        self.entry_offset_y["fg"] = "#333333"
+        self.entry_offset_y["justify"] = "center"
+        self.entry_offset_y.place(x=490, y=460, width=150, height=30)
+
+        # 图像/水印大小
+        label_72 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_72["font"] = ft
+        label_72["fg"] = "#333333"
+        label_72["justify"] = "right"
+        label_72["text"] = "图片/水印："
+        label_72.place(x=20, y=520, width=90, height=30)
+
+        self.entry_zoom = tk.Entry(root)
+        self.entry_zoom["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_zoom["font"] = ft
+        self.entry_zoom["fg"] = "#333333"
+        self.entry_zoom["justify"] = "center"
+        self.entry_zoom["text"] = "3"
+        self.entry_zoom.place(x=130, y=520, width=150, height=30)
+
+        label_630 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_630["font"] = ft
+        label_630["fg"] = "#333333"
+        label_630["justify"] = "center"
+        label_630["text"] = "/1"
+        label_630.place(x=280, y=520, width=35, height=30)
+
+        # 不透明度
+        label_268 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_268["font"] = ft
+        label_268["fg"] = "#333333"
+        label_268["justify"] = "right"
+        label_268["text"] = "不透明度："
+        label_268.place(x=380, y=520, width=90, height=30)
+
+        self.entry_opacity = tk.Entry(root)
+        self.entry_opacity["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_opacity["font"] = ft
+        self.entry_opacity["fg"] = "#333333"
+        self.entry_opacity["justify"] = "center"
+        self.entry_opacity.place(x=490, y=520, width=150, height=30)
+
+        # 图像文件目录
+        label_54 = tk.Label(root)
+        ft = tkFont.Font(family='Times', size=10)
+        label_54["font"] = ft
+        label_54["fg"] = "#333333"
+        label_54["justify"] = "right"
+        label_54["text"] = "图片文件目录："
+        label_54.place(x=20, y=580, width=90, height=30)
+
+        self.entry_image_dir = tk.Entry(root)
+        self.entry_image_dir["borderwidth"] = "1px"
+        ft = tkFont.Font(family='Times', size=10)
+        self.entry_image_dir["font"] = ft
+        self.entry_image_dir["fg"] = "#333333"
+        self.entry_image_dir["justify"] = "left"
+        self.entry_image_dir.place(x=130, y=580, width=400, height=30)
+
+        button_choose_image_dir = tk.Button(root)
+        button_choose_image_dir["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times', size=10)
+        button_choose_image_dir["font"] = ft
+        button_choose_image_dir["fg"] = "#000000"
+        button_choose_image_dir["justify"] = "center"
+        button_choose_image_dir["text"] = "..."
+        button_choose_image_dir.place(x=560, y=580, width=84, height=30)
+        button_choose_image_dir["command"] = self.button_choose_image_dir_command
+
+        # 生成水印图片
+        button_add_watermark = tk.Button(root)
+        button_add_watermark["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times', size=10)
+        button_add_watermark["font"] = ft
+        button_add_watermark["fg"] = "#000000"
+        button_add_watermark["justify"] = "center"
+        button_add_watermark["text"] = "生成水印图片"
+        button_add_watermark.place(x=260, y=640, width=165, height=30)
+        button_add_watermark["command"] = self.button_add_watermark_command
+
+        self.text_log = tk.Text(root)  # 日志框
+        self.text_log.place(x=20, y=700, width=660, height=80)
+
     # 选择水印文件夹
-    def GButton_ChooseWatermarkDir_command(self):
+    def button_choose_watermark_dir_command(self):
         select_dir = tk.filedialog.askopenfilename(title='水印文件', filetypes=[('png', '*.png')])
         select_dir = os.path.dirname(select_dir)
         if len(select_dir) > 0:
             self.set_watermark_dir(select_dir)
 
-    def GButton_choose_image_dir_command(self):
+    def button_choose_image_dir_command(self):
         select_dir = tk.filedialog.askopenfilename(title='图像文件',
                                                    filetypes=[('jpg', '*.jpg'), ('png', '*.png'), ('all', '*.*')])
         select_dir = os.path.dirname(select_dir)
         if len(select_dir) > 0:
             self.set_image_dir(select_dir)
 
-    def GButton_add_watermark_command(self):
+    def button_add_watermark_command(self):
         self.load_form_val()
         if len(self.image_dir) < 2:
             messagebox.showwarning('注意', '图片路径不能为空！')
             return
-        selection = self.GListBox_WatermarkImg.curselection()
+        selection = self.listbox_watermark_img.curselection()
         print(selection)
         if not selection:
             messagebox.showwarning('注意', '请选择水印！')
             return
         self.watermark_path = os.path.join(self.watermark_dir,
-                                           self.GListBox_WatermarkImg.get(selection[0]))
+                                           self.listbox_watermark_img.get(selection[0]))
         self.add_watermark_dir(self.image_dir)
 
     # 读取水印文件
@@ -321,7 +329,7 @@ class App:
                 ext = os.path.splitext(watermakr_filepath)[1].lower()
                 if ext == '.png':
                     i = i + 1
-                    self.GListBox_WatermarkImg.insert(i, watermakr_filepath)
+                    self.listbox_watermark_img.insert(i, watermakr_filepath)
 
     # 读取图像文件
     def load_image(self, dir):
@@ -333,7 +341,7 @@ class App:
                 ext = os.path.splitext(watermakr_filepath)[1].lower()
                 if ext == '.png' or ext == '.jpg':
                     i = i + 1
-                    self.GListBox_WatermarkImg.insert(i, watermakr_filepath)
+                    self.listbox_watermark_img.insert(i, watermakr_filepath)
 
     def load_default_config(self):
         self.set_watermark_dir(get_config(get_config_filename(), 'watermark', 'dir'))
@@ -347,24 +355,24 @@ class App:
         offset_x = get_config(get_config_filename(), 'watermark', 'offset_x')
         if len(offset_x) == 0:
             offset_x = self.watermark_offset_x
-        self.GLineEdit_offset_x.insert(0, offset_x)
+        self.entry_offset_x.insert(0, offset_x)
         # offset_y
         offset_y = get_config(get_config_filename(), 'watermark', 'offset_y')
         if len(offset_y) == 0:
             offset_y = self.watermark_offset_y
-        self.GLineEdit_offset_y.insert(0, offset_y)
+        self.entry_offset_y.insert(0, offset_y)
         #  zoom
         zoom = get_config(get_config_filename(), 'watermark', 'zoom')
         if len(zoom) == 0:
             zoom = self.watermark_zoom
-        self.GLineEdit_zoom.delete(0, tk.END)
-        self.GLineEdit_zoom.insert(0, zoom)
+        self.entry_zoom.delete(0, tk.END)
+        self.entry_zoom.insert(0, zoom)
         #  opacity
         opacity = get_config(get_config_filename(), 'watermark', 'opacity')
         if len(opacity) == 0:
             opacity = self.watermark_opacity
-        self.GLineEdit_opacity.delete(0, tk.END)
-        self.GLineEdit_opacity.insert(0, opacity)
+        self.entry_opacity.delete(0, tk.END)
+        self.entry_opacity.insert(0, opacity)
 
     def save_default_config(self):
         set_config(get_config_filename(), 'watermark', 'dir', self.watermark_dir)
@@ -377,29 +385,29 @@ class App:
 
     def set_watermark_dir(self, watermark_dir):
         self.watermark_dir = watermark_dir
-        self.GLineEdit_WatermarkDir.delete(0, tk.END)
-        self.GLineEdit_WatermarkDir.insert(0, self.watermark_dir)
-        self.GLineEdit_WatermarkDir["text"] = self.watermark_dir
+        self.entry_watermark_dir.delete(0, tk.END)
+        self.entry_watermark_dir.insert(0, self.watermark_dir)
+        self.entry_watermark_dir["text"] = self.watermark_dir
         self.load_watermark(self.watermark_dir)
 
     def set_image_dir(self, image_dir):
         self.image_dir = image_dir
-        self.GLineEdit_image_dir.delete(0, tk.END)
-        self.GLineEdit_image_dir.insert(0, self.image_dir)
+        self.entry_image_dir.delete(0, tk.END)
+        self.entry_image_dir.insert(0, self.image_dir)
 
     def set_watermark_index(self, index):
-        if self.GListBox_WatermarkImg.size() == 0:
+        if self.listbox_watermark_img.size() == 0:
             return
         self.watermark_index = index
-        self.GListBox_WatermarkImg.select_set(index)
+        self.listbox_watermark_img.select_set(index)
 
     def load_form_val(self):
         self.watermark_pos = int(self.v.get())
-        self.watermark_index = self.GListBox_WatermarkImg.curselection()[0]
-        self.watermark_offset_x = int(self.GLineEdit_offset_x.get())
-        self.watermark_offset_y = int(self.GLineEdit_offset_y.get())
-        self.watermark_zoom = int(self.GLineEdit_zoom.get())
-        self.watermark_opacity = float(self.GLineEdit_opacity.get())
+        self.watermark_index = self.listbox_watermark_img.curselection()[0]
+        self.watermark_offset_x = int(self.entry_offset_x.get())
+        self.watermark_offset_y = int(self.entry_offset_y.get())
+        self.watermark_zoom = int(self.entry_zoom.get())
+        self.watermark_opacity = float(self.entry_opacity.get())
 
     def add_watermark_dir(self, image_dir):
         i = 0;
@@ -429,11 +437,11 @@ class App:
         current_time = get_current_time()
         logmsg_in = str(current_time) + " " + str(logmsg) + "\n"  # 换行
         if LOG_LINE_NUM <= 7:
-            self.Text_log.insert(tk.END, logmsg_in)
+            self.text_log.insert(tk.END, logmsg_in)
             LOG_LINE_NUM = LOG_LINE_NUM + 1
         else:
-            self.Text_log.delete(1.0, 2.0)
-            self.Text_log.insert(tk.END, logmsg_in)
+            self.text_log.delete(1.0, 2.0)
+            self.text_log.insert(tk.END, logmsg_in)
 
 
 def gui_start():
