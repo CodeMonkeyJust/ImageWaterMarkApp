@@ -16,8 +16,10 @@ from date_unit import get_current_time
 LOG_LINE_NUM = 0
 
 
-class App:
-    def __init__(self, root):
+class WindowsMain(tk.Tk):
+    def __init__(self, *args, **kw):
+        super().__init__()
+        init_file()
         # 全局变量
         self.VER = 'V1.1.1'
         self.watermark_dir = ''
@@ -32,34 +34,36 @@ class App:
         # 水印9宫格位置
         self.v = tk.IntVar()
         self.v.set(7)
-        self.init_from(root)
+        self.init_from()
+        self.after(100, self.refresh_from)
         self.load_default_config()
+        self.mainloop()
 
     # 初始化界面
-    def init_from(self, root):
+    def init_from(self):
         # setting title
-        root.title("图像水印工具")
+        self.title("图像水印工具")
         # setting window size
         width = 700
         height = 800
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
+        screenwidth = self.winfo_screenwidth()
+        screenheight = self.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
+        self.geometry(alignstr)
+        self.resizable(width=False, height=False)
         # 菜单
-        menu_main = tk.Menu(root)
+        menu_main = tk.Menu(self)
         menu_file = tk.Menu(menu_main, tearoff=False)
         menu_file.add_command(label='选择水印', command=self.button_choose_watermark_dir_command)
         menu_file.add_command(label='选择图像', command=self.button_choose_image_dir_command)
         # 添加一条分割线
         menu_file.add_separator()
-        menu_file.add_command(label="退出", command=root.destroy)
+        menu_file.add_command(label="退出", command=self.destroy)
         menu_main.add_cascade(label='文件', menu=menu_file)
         menu_main.add_command(label='关于', command=self.show_about_author)
-        root.config(menu=menu_main)
+        self.config(menu=menu_main)
 
-        button_choose_watermark_dir = tk.Button(root)
+        button_choose_watermark_dir = tk.Button(self)
         button_choose_watermark_dir["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times', size=10)
         button_choose_watermark_dir["font"] = ft
@@ -69,7 +73,7 @@ class App:
         button_choose_watermark_dir.place(x=560, y=20, width=84, height=30)
         button_choose_watermark_dir["command"] = self.button_choose_watermark_dir_command
 
-        label_855 = tk.Label(root)
+        label_855 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_855["font"] = ft
         label_855["fg"] = "#333333"
@@ -77,7 +81,7 @@ class App:
         label_855["text"] = "水印文件目录："
         label_855.place(x=20, y=20, width=90, height=30)
 
-        label_669 = tk.Label(root)
+        label_669 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_669["font"] = ft
         label_669["fg"] = "#333333"
@@ -85,7 +89,7 @@ class App:
         label_669["text"] = "水印位置："
         label_669.place(x=20, y=280, width=90, height=30)
 
-        self.entry_watermark_dir = tk.Entry(root)
+        self.entry_watermark_dir = tk.Entry(self)
         self.entry_watermark_dir["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_watermark_dir["font"] = ft
@@ -93,7 +97,7 @@ class App:
         self.entry_watermark_dir["justify"] = "left"
         self.entry_watermark_dir.place(x=130, y=20, width=400, height=30)
 
-        self.listbox_watermark_img = tk.Listbox(root)
+        self.listbox_watermark_img = tk.Listbox(self)
         self.listbox_watermark_img["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.listbox_watermark_img["font"] = ft
@@ -104,7 +108,7 @@ class App:
         # self.listbox_watermark_img["selectmode"] = tk.BROWSE
         self.listbox_watermark_img.place(x=130, y=80, width=512, height=170)
 
-        radiobutton_pos_lt = tk.Radiobutton(root, variable=self.v, value=1)
+        radiobutton_pos_lt = tk.Radiobutton(self, variable=self.v, value=1)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_lt["font"] = ft
         radiobutton_pos_lt["fg"] = "#333333"
@@ -112,7 +116,7 @@ class App:
         radiobutton_pos_lt["text"] = "左上"
         radiobutton_pos_lt.place(x=130, y=280, width=90, height=30)
 
-        radiobutton_pos_rt = tk.Radiobutton(root, variable=self.v, value=3)
+        radiobutton_pos_rt = tk.Radiobutton(self, variable=self.v, value=3)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_rt["font"] = ft
         radiobutton_pos_rt["fg"] = "#333333"
@@ -120,7 +124,7 @@ class App:
         radiobutton_pos_rt["text"] = "右上"
         radiobutton_pos_rt.place(x=550, y=280, width=90, height=30)
 
-        label_190 = tk.Label(root)
+        label_190 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_190["font"] = ft
         label_190["fg"] = "#333333"
@@ -128,7 +132,7 @@ class App:
         label_190["text"] = "请选择水印："
         label_190.place(x=20, y=80, width=90, height=30)
 
-        radiobutton_pos_lm = tk.Radiobutton(root, variable=self.v, value=4)
+        radiobutton_pos_lm = tk.Radiobutton(self, variable=self.v, value=4)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_lm["font"] = ft
         radiobutton_pos_lm["fg"] = "#333333"
@@ -136,7 +140,7 @@ class App:
         radiobutton_pos_lm["text"] = "左中"
         radiobutton_pos_lm.place(x=130, y=340, width=90, height=30)
 
-        radiobutton_pos_mt = tk.Radiobutton(root, variable=self.v, value=2)
+        radiobutton_pos_mt = tk.Radiobutton(self, variable=self.v, value=2)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_mt["font"] = ft
         radiobutton_pos_mt["fg"] = "#333333"
@@ -144,7 +148,7 @@ class App:
         radiobutton_pos_mt["text"] = "中上"
         radiobutton_pos_mt.place(x=340, y=280, width=90, height=30)
 
-        radiobutton_pos_mm = tk.Radiobutton(root, variable=self.v, value=5)
+        radiobutton_pos_mm = tk.Radiobutton(self, variable=self.v, value=5)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_mm["font"] = ft
         radiobutton_pos_mm["fg"] = "#333333"
@@ -152,7 +156,7 @@ class App:
         radiobutton_pos_mm["text"] = "中中"
         radiobutton_pos_mm.place(x=340, y=340, width=90, height=30)
 
-        radiobutton_pos_rm = tk.Radiobutton(root, variable=self.v, value=6)
+        radiobutton_pos_rm = tk.Radiobutton(self, variable=self.v, value=6)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_rm["font"] = ft
         radiobutton_pos_rm["fg"] = "#333333"
@@ -160,7 +164,7 @@ class App:
         radiobutton_pos_rm["text"] = "右中"
         radiobutton_pos_rm.place(x=550, y=340, width=90, height=30)
 
-        radiobutton_pos_ld = tk.Radiobutton(root, variable=self.v, value=7)
+        radiobutton_pos_ld = tk.Radiobutton(self, variable=self.v, value=7)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_ld["font"] = ft
         radiobutton_pos_ld["fg"] = "#333333"
@@ -168,7 +172,7 @@ class App:
         radiobutton_pos_ld["text"] = "左下"
         radiobutton_pos_ld.place(x=130, y=400, width=90, height=25)
 
-        radiobutton_pos_md = tk.Radiobutton(root, variable=self.v, value=8)
+        radiobutton_pos_md = tk.Radiobutton(self, variable=self.v, value=8)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_md["font"] = ft
         radiobutton_pos_md["fg"] = "#333333"
@@ -176,7 +180,7 @@ class App:
         radiobutton_pos_md["text"] = "中下"
         radiobutton_pos_md.place(x=340, y=400, width=90, height=30)
 
-        radiobutton_pos_rd = tk.Radiobutton(root, variable=self.v, value=9)
+        radiobutton_pos_rd = tk.Radiobutton(self, variable=self.v, value=9)
         ft = tkFont.Font(family='Times', size=10)
         radiobutton_pos_rd["font"] = ft
         radiobutton_pos_rd["fg"] = "#333333"
@@ -185,7 +189,7 @@ class App:
         radiobutton_pos_rd.place(x=550, y=400, width=90, height=30)
 
         # 水印偏移X
-        label_offset_x = tk.Label(root)
+        label_offset_x = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_offset_x["font"] = ft
         label_offset_x["fg"] = "#333333"
@@ -193,7 +197,7 @@ class App:
         label_offset_x["text"] = "水印偏移X："
         label_offset_x.place(x=20, y=460, width=90, height=30)
 
-        self.entry_offset_x = tk.Entry(root)
+        self.entry_offset_x = tk.Entry(self)
         self.entry_offset_x["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_offset_x["font"] = ft
@@ -202,7 +206,7 @@ class App:
         self.entry_offset_x.place(x=130, y=460, width=150, height=30)
 
         # 水印偏移Y
-        label_offset_y = tk.Label(root)
+        label_offset_y = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_offset_y["font"] = ft
         label_offset_y["fg"] = "#333333"
@@ -210,7 +214,7 @@ class App:
         label_offset_y["text"] = "水印偏移Y："
         label_offset_y.place(x=380, y=460, width=90, height=30)
 
-        self.entry_offset_y = tk.Entry(root)
+        self.entry_offset_y = tk.Entry(self)
         self.entry_offset_y["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_offset_y["font"] = ft
@@ -219,7 +223,7 @@ class App:
         self.entry_offset_y.place(x=490, y=460, width=150, height=30)
 
         # 图像/水印大小
-        label_72 = tk.Label(root)
+        label_72 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_72["font"] = ft
         label_72["fg"] = "#333333"
@@ -227,7 +231,7 @@ class App:
         label_72["text"] = "图片/水印："
         label_72.place(x=20, y=520, width=90, height=30)
 
-        self.entry_zoom = tk.Entry(root)
+        self.entry_zoom = tk.Entry(self)
         self.entry_zoom["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_zoom["font"] = ft
@@ -236,7 +240,7 @@ class App:
         self.entry_zoom["text"] = "3"
         self.entry_zoom.place(x=130, y=520, width=150, height=30)
 
-        label_630 = tk.Label(root)
+        label_630 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_630["font"] = ft
         label_630["fg"] = "#333333"
@@ -245,7 +249,7 @@ class App:
         label_630.place(x=280, y=520, width=35, height=30)
 
         # 不透明度
-        label_268 = tk.Label(root)
+        label_268 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_268["font"] = ft
         label_268["fg"] = "#333333"
@@ -253,7 +257,7 @@ class App:
         label_268["text"] = "不透明度："
         label_268.place(x=380, y=520, width=90, height=30)
 
-        self.entry_opacity = tk.Entry(root)
+        self.entry_opacity = tk.Entry(self)
         self.entry_opacity["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_opacity["font"] = ft
@@ -262,7 +266,7 @@ class App:
         self.entry_opacity.place(x=490, y=520, width=150, height=30)
 
         # 图像文件目录
-        label_54 = tk.Label(root)
+        label_54 = tk.Label(self)
         ft = tkFont.Font(family='Times', size=10)
         label_54["font"] = ft
         label_54["fg"] = "#333333"
@@ -270,7 +274,7 @@ class App:
         label_54["text"] = "图片文件目录："
         label_54.place(x=20, y=580, width=90, height=30)
 
-        self.entry_image_dir = tk.Entry(root)
+        self.entry_image_dir = tk.Entry(self)
         self.entry_image_dir["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times', size=10)
         self.entry_image_dir["font"] = ft
@@ -278,7 +282,7 @@ class App:
         self.entry_image_dir["justify"] = "left"
         self.entry_image_dir.place(x=130, y=580, width=400, height=30)
 
-        button_choose_image_dir = tk.Button(root)
+        button_choose_image_dir = tk.Button(self)
         button_choose_image_dir["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times', size=10)
         button_choose_image_dir["font"] = ft
@@ -289,7 +293,7 @@ class App:
         button_choose_image_dir["command"] = self.button_choose_image_dir_command
 
         # 生成水印图片
-        button_add_watermark = tk.Button(root)
+        button_add_watermark = tk.Button(self)
         button_add_watermark["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times', size=10)
         button_add_watermark["font"] = ft
@@ -299,7 +303,7 @@ class App:
         button_add_watermark.place(x=260, y=640, width=165, height=30)
         button_add_watermark["command"] = self.button_add_watermark_command
 
-        self.text_log = tk.Text(root)  # 日志框
+        self.text_log = tk.Text(self)  # 日志框
         self.text_log.place(x=20, y=700, width=660, height=80)
 
     # 选择水印文件夹
@@ -442,16 +446,22 @@ class App:
                                   offset_y=self.watermark_offset_y,
                                   opacity=self.watermark_opacity)
                     self.write_log_to_text(str(i) + '-[' + filepath + ']')
+                    self.refresh_from()
         self.write_log_to_text('======添加水印完成，共添加' + str(i) + '个文件======')
         self.write_log_to_text('文件输出路径' + out_dir)
         self.save_default_config()
         messagebox.showinfo('信息', '添加水印完成，共添加' + str(i) + '个文件,水印文件输出路径' + out_dir)
 
+    def refresh_from(self):
+        # print('refresh_from')
+        # self.text_log.insert(tk.END, '1')
+        self.after(1000, self.refresh_from)  # 这里的100单位为毫秒
+
     def write_log_to_text(self, logmsg):
         global LOG_LINE_NUM
         current_time = get_current_time()
         logmsg_in = str(current_time) + " " + str(logmsg) + "\n"  # 换行
-        if LOG_LINE_NUM <= 7:
+        if LOG_LINE_NUM <= 5:
             self.text_log.insert(tk.END, logmsg_in)
             LOG_LINE_NUM = LOG_LINE_NUM + 1
         else:
@@ -462,12 +472,5 @@ class App:
         messagebox.showinfo('关于', 'This program is developed for Flyany.\n\rzlj20@163.com\n\r' + self.VER)
 
 
-def gui_start():
-    init_file()
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
-
-
 if __name__ == "__main__":
-    gui_start()
+    windowsMain = WindowsMain()
