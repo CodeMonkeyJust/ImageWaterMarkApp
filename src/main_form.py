@@ -471,6 +471,8 @@ class WindowsMain(tk.Tk):
     def show_about_author(self):
         messagebox.showinfo('关于', 'This program is developed for Flyany.\n\rzlj20@163.com\n\r' + self.VER)
 
+def gui_start():
+    gwindowsMain = WindowsMain()
 
 if __name__ == "__main__":
-    windowsMain = WindowsMain()
+    gui_start()
