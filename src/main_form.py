@@ -19,6 +19,7 @@ LOG_LINE_NUM = 0
 class App:
     def __init__(self, root):
         # 全局变量
+        self.VER = 'V1.1.1'
         self.watermark_dir = ''
         self.watermark_path = ''
         self.image_dir = ''
@@ -37,7 +38,7 @@ class App:
     # 初始化界面
     def init_from(self, root):
         # setting title
-        root.title("图像水印工具 For Flyany V1.0.0")
+        root.title("图像水印工具")
         # setting window size
         width = 700
         height = 800
@@ -46,6 +47,18 @@ class App:
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
+        # 菜单
+        menu_main = tk.Menu(root)
+        menu_file = tk.Menu(menu_main, tearoff=False)
+        menu_file.add_command(label='选择水印', command=self.button_choose_watermark_dir_command)
+        menu_file.add_command(label='选择图像', command=self.button_choose_image_dir_command)
+        # 添加一条分割线
+        menu_file.add_separator()
+        menu_file.add_command(label="退出", command=root.destroy)
+        menu_main.add_cascade(label='文件', menu=menu_file)
+        menu_main.add_command(label='关于', command=self.show_about_author)
+        root.config(menu=menu_main)
+
         button_choose_watermark_dir = tk.Button(root)
         button_choose_watermark_dir["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times', size=10)
@@ -319,6 +332,8 @@ class App:
 
     # 读取水印文件
     def load_watermark(self, dir):
+        # 清空
+        self.listbox_watermark_img.delete(0, tk.END)
         if not os.path.isdir(dir):
             return
         i = 0
@@ -442,6 +457,9 @@ class App:
         else:
             self.text_log.delete(1.0, 2.0)
             self.text_log.insert(tk.END, logmsg_in)
+
+    def show_about_author(self):
+        messagebox.showinfo('关于', 'This program is developed for Flyany.\n\rzlj20@163.com\n\r' + self.VER)
 
 
 def gui_start():
