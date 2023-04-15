@@ -45,7 +45,7 @@ class WindowsMain(tk.Tk):
     # 初始化界面
     def init_from(self):
         # setting title
-        self.title("图像水印工具")
+        self.title("图像批量加水印工具")
         # setting window size
         width = 700
         height = 800
