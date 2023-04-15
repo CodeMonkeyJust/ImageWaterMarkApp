@@ -8,7 +8,8 @@ import os
 from PIL import Image, ImageEnhance
 
 
-def add_watermark(watermark_path, image_path, out_path, zoom=3, pos=5, offset_x=100, offset_y=100, opacity=1):
+def add_watermark(watermark_path, image_path, out_path, zoom=3, pos=5, offset_x=100, offset_y=100, opacity=1,
+                  out_ext='.png'):
     # im是图像，watermark是图片水印
     im = Image.open(image_path).convert('RGBA')
     watermark = Image.open(watermark_path).convert('RGBA')
@@ -75,7 +76,11 @@ def add_watermark(watermark_path, image_path, out_path, zoom=3, pos=5, offset_x=
     out_dir = os.path.dirname(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    im.save(out_path)
+    if out_ext == '.png':
+        im.save(out_path)
+    elif out_ext == '.jpg':
+        im_jpge = im.convert("RGB")
+        im_jpge.save(out_path,quality=95)
 
 
 # im.show()
