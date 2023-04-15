@@ -364,10 +364,10 @@ class WindowsMain(tk.Tk):
         if len(self.image_dir) < 2:
             messagebox.showwarning('注意', '图片路径不能为空！')
             return
-        selection = self.listbox_watermark_img.curselection()
-        if not selection:
+        if isinstance(self.watermark_index,str):
             messagebox.showwarning('注意', '请选择水印！')
             return
+        selection = self.listbox_watermark_img.curselection()
         if self.watermark_opacity > 1 or self.watermark_opacity < 0:
             messagebox.showwarning('注意', '不透明度应该介于0到1之间！')
             return
@@ -464,7 +464,7 @@ class WindowsMain(tk.Tk):
     def set_watermark_index(self, index=0):
         if self.listbox_watermark_img.size() == 0:
             return
-        if len(index) == 0:
+        if isinstance(index, str):
             index = 0
         self.watermark_index = index
         self.listbox_watermark_img.select_set(index)
