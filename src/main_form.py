@@ -30,7 +30,7 @@ class WindowsMain(tk.Tk):
         self.watermark_offset_x = 0
         self.watermark_offset_y = 0
         self.watermark_zoom = 3
-        self.watermark_opacity = 1
+        self.watermark_opacity = 0.65
         self.output_ext_type = 1
         # 水印9宫格位置
         self.gv_watermark_pos = tk.IntVar()
@@ -54,7 +54,7 @@ class WindowsMain(tk.Tk):
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
         self.geometry(alignstr)
         self.resizable(width=False, height=False)
-        # 菜单
+        # 菜单，MacOS下根菜单不显示，所以不使用根菜单
         menu_main = tk.Menu(self)
         menu_file = tk.Menu(menu_main, tearoff=False)
         menu_file.add_command(label='选择水印', command=self.button_choose_watermark_dir_command)
@@ -63,7 +63,9 @@ class WindowsMain(tk.Tk):
         menu_file.add_separator()
         menu_file.add_command(label="退出", command=self.destroy)
         menu_main.add_cascade(label='文件', menu=menu_file)
-        menu_main.add_command(label='关于', command=self.show_about_author)
+        menu_help = tk.Menu(menu_main, tearoff=False)
+        menu_help.add_command(label='关于', command=self.show_about_author)
+        menu_main.add_cascade(label='帮助', menu=menu_help)
         self.config(menu=menu_main)
 
         label_190 = tk.Label(self)
@@ -348,6 +350,7 @@ class WindowsMain(tk.Tk):
         select_dir = os.path.dirname(select_dir)
         if len(select_dir) > 0:
             self.set_watermark_dir(select_dir)
+            self.set_watermark_index(0)
 
     def button_choose_image_dir_command(self):
         select_dir = tk.filedialog.askopenfilename(title='图像文件',
@@ -362,7 +365,6 @@ class WindowsMain(tk.Tk):
             messagebox.showwarning('注意', '图片路径不能为空！')
             return
         selection = self.listbox_watermark_img.curselection()
-        print(selection)
         if not selection:
             messagebox.showwarning('注意', '请选择水印！')
             return
@@ -459,9 +461,11 @@ class WindowsMain(tk.Tk):
         self.entry_image_dir.delete(0, tk.END)
         self.entry_image_dir.insert(0, self.image_dir)
 
-    def set_watermark_index(self, index):
+    def set_watermark_index(self, index=0):
         if self.listbox_watermark_img.size() == 0:
             return
+        if len(index) == 0:
+            index = 0
         self.watermark_index = index
         self.listbox_watermark_img.select_set(index)
 
