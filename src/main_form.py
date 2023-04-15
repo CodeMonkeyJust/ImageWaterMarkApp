@@ -366,6 +366,9 @@ class WindowsMain(tk.Tk):
         if not selection:
             messagebox.showwarning('注意', '请选择水印！')
             return
+        if self.watermark_opacity > 1 or self.watermark_opacity < 0:
+            messagebox.showwarning('注意', '不透明度应该介于0到1之间！')
+            return
         self.watermark_path = os.path.join(self.watermark_dir,
                                            self.listbox_watermark_img.get(selection[0]))
         self.add_watermark_dir(self.image_dir)
